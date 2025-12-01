@@ -13,7 +13,7 @@ import { FontLibrary } from 'skia-canvas'
 // 使用包装函数以保留正确的 this 上下文
 export const registerFont = (pathOrPaths: string | string[]) => {
   const paths = Array.isArray(pathOrPaths) ? pathOrPaths : [pathOrPaths]
-  paths.forEach(path => FontLibrary.use(path))
+  return FontLibrary.use(paths)
 }
 
 // 导出 skia-canvas 字体管理功能
