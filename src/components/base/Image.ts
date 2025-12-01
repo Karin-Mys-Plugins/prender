@@ -1,5 +1,5 @@
 import type { Element } from "@karin-mys/prender/types"
-import type { CanvasRenderingContext2D, Image } from 'skia-canvas'
+import type { CanvasRenderingContext2D } from 'skia-canvas'
 import type { ImageProps } from "."
 
 import { normalizeBorderRadiusForCanvas } from "@karin-mys/prender/utils/borderRadius"
@@ -22,11 +22,7 @@ function draw (
 
   try {
     // 优先使用缓存的图片
-    let image: Image | undefined
-    const cachedImage = imageCache.getImage(src)
-    if (cachedImage) {
-      image = cachedImage
-    }
+    const image = imageCache.getImage(src)
 
     ctx.save()
 
@@ -40,8 +36,8 @@ function draw (
     }
     ctx.clip()
 
-    const imgWidth = image.width
-    const imgHeight = image.height
+    const imgWidth = image?.width || 0
+    const imgHeight = image?.height || 0
     const aspectRatio = imgWidth / imgHeight
     const containerAspectRatio = width / height
 

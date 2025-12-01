@@ -52,16 +52,17 @@ function draw (ctx: CanvasRenderingContext2D, element: Element) {
   const { left, top, width, height } = element.layout
   const { background, backgroundColor, backgroundImage, backgroundSize, backgroundPosition, backgroundRepeat, boxShadow, transform } = element.style
 
-  ctx.save()
+  const radius = getBorderRadius(element.style)
+  const needsSaveRestore = transform || boxShadow || backgroundImage
+
+  if (needsSaveRestore) ctx.save()
 
   // Apply transformations
   if (transform) {
     applyTransform(ctx, transform, element)
   }
-  const radius = getBorderRadius(element.style)
 
   if (boxShadow) {
-    ctx.save()
     const shadow = parseBoxShadow(boxShadow)
     ctx.shadowColor = shadow.color
     ctx.shadowBlur = shadow.blur
@@ -70,12 +71,20 @@ function draw (ctx: CanvasRenderingContext2D, element: Element) {
     drawRoundedRectPath(ctx, left, top, width, height, radius)
     ctx.fillStyle = 'rgba(0,0,0,1)'
     ctx.fill()
-    ctx.restore()
+    // 重置阴影
+    ctx.shadowColor = 'transparent'
+    ctx.shadowBlur = 0
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = 0
   }
 
-  ctx.save()
-  drawRoundedRectPath(ctx, left, top, width, height, radius)
-  ctx.clip()
+  // 只在需要裁剪时才使用 clip
+  const needsClip = backgroundImage || (radius && (radius[0] > 0 || radius[1] > 0 || radius[2] > 0 || radius[3] > 0))
+
+  if (needsClip) {
+    drawRoundedRectPath(ctx, left, top, width, height, radius)
+    ctx.clip()
+  }
 
   const bg = background || backgroundColor
   if (bg && typeof bg === 'string' && bg.startsWith('linear-gradient')) {
@@ -91,65 +100,58 @@ function draw (ctx: CanvasRenderingContext2D, element: Element) {
 
   if (backgroundImage && (typeof backgroundImage === 'string' || Buffer.isBuffer(backgroundImage))) {
     try {
-      // 优先使用缓存的图片，如果没有则尝试加载
-      let image: Image | undefined
-      const cachedImage = imageCache.getImage(backgroundImage)
-      if (cachedImage) {
-        image = cachedImage
-      }
+      // 优先使用缓存的图片
+      const image: Image | undefined = imageCache.getImage(backgroundImage)
 
       if (!image) {
-        console.error('无法加载背景图片:', backgroundImage)
-        ctx.restore()
-        return
-      }
-
-      let imgWidth = image.width, imgHeight = image.height
-      let drawX = left, drawY = top, drawWidth = width, drawHeight = height
-
-      if (backgroundSize === 'cover') {
-        const scale = Math.max(width / imgWidth, height / imgHeight)
-        drawWidth = imgWidth * scale
-        drawHeight = imgHeight * scale
-        drawX = left + (width - drawWidth) / 2
-        drawY = top + (height - drawHeight) / 2
-      } else if (backgroundSize === 'contain') {
-        const scale = Math.min(width / imgWidth, height / imgHeight)
-        drawWidth = imgWidth * scale
-        drawHeight = imgHeight * scale
-        drawX = left + (width - drawWidth) / 2
-        drawY = top + (height - drawHeight) / 2
-      }
-
-      if (backgroundPosition) {
-        const [xPos, yPos] = backgroundPosition.split(' ')
-        if (xPos === 'center') drawX = left + (width - drawWidth) / 2
-        else if (xPos === 'right') drawX = left + width - drawWidth
-        if (yPos === 'center') drawY = top + (height - drawHeight) / 2
-        else if (yPos === 'bottom') drawY = top + height - drawHeight
-      }
-
-      if (backgroundRepeat && backgroundRepeat !== 'no-repeat') {
-        const pattern = ctx.createPattern(image, backgroundRepeat)
-        if (pattern) {
-          ctx.fillStyle = pattern
-          ctx.fillRect(left, top, width, height)
-        }
+        console.warn('背景图片未预加载:', backgroundImage)
       } else {
-        ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight)
+        let imgWidth = image.width, imgHeight = image.height
+        let drawX = left, drawY = top, drawWidth = width, drawHeight = height
+
+        if (backgroundSize === 'cover') {
+          const scale = Math.max(width / imgWidth, height / imgHeight)
+          drawWidth = imgWidth * scale
+          drawHeight = imgHeight * scale
+          drawX = left + (width - drawWidth) / 2
+          drawY = top + (height - drawHeight) / 2
+        } else if (backgroundSize === 'contain') {
+          const scale = Math.min(width / imgWidth, height / imgHeight)
+          drawWidth = imgWidth * scale
+          drawHeight = imgHeight * scale
+          drawX = left + (width - drawWidth) / 2
+          drawY = top + (height - drawHeight) / 2
+        }
+
+        if (backgroundPosition) {
+          const [xPos, yPos] = backgroundPosition.split(' ')
+          if (xPos === 'center') drawX = left + (width - drawWidth) / 2
+          else if (xPos === 'right') drawX = left + width - drawWidth
+          if (yPos === 'center') drawY = top + (height - drawHeight) / 2
+          else if (yPos === 'bottom') drawY = top + height - drawHeight
+        }
+
+        if (backgroundRepeat && backgroundRepeat !== 'no-repeat') {
+          const pattern = ctx.createPattern(image, backgroundRepeat)
+          if (pattern) {
+            ctx.fillStyle = pattern
+            ctx.fillRect(left, top, width, height)
+          }
+        } else {
+          ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight)
+        }
       }
     } catch (error) {
       console.error('Failed to load background image:', error)
     }
   }
-  ctx.restore()
+
+  if (needsSaveRestore) ctx.restore()
 
   const borders = getPartialBorder(element.style)
   if (Object.values(borders).some(b => b)) {
     drawPartialBorder(ctx, left, top, width, height, radius, borders)
   }
-
-  ctx.restore()
 }
 
 export default { draw }

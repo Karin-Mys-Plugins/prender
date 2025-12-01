@@ -73,19 +73,23 @@ export function layoutRichText (ctx: CanvasRenderingContext2D, fragments: Styled
 
     while (textToProcess.length > 0) {
       let canFitChars = 0
-      let testText = ''
+      let accumulatedWidth = 0
 
-      // 找到能放在当前行的最大字符数
-      for (let i = 0; i < textToProcess.length; i++) {
-        const char = textToProcess[i]
-        const newTestText = testText + char
-        const newTestWidth = ctx.measureText(newTestText).width
+      // 使用二分查找优化字符数查找
+      let left = 0
+      let right = textToProcess.length
 
-        if (currentLineWidth + newTestWidth <= maxContentWidth) {
-          testText = newTestText
-          canFitChars = i + 1
+      while (left <= right) {
+        const mid = Math.floor((left + right) / 2)
+        const testText = textToProcess.substring(0, mid)
+        const testWidth = ctx.measureText(testText).width
+
+        if (currentLineWidth + testWidth <= maxContentWidth) {
+          canFitChars = mid
+          accumulatedWidth = testWidth
+          left = mid + 1
         } else {
-          break
+          right = mid - 1
         }
       }
 
@@ -99,12 +103,16 @@ export function layoutRichText (ctx: CanvasRenderingContext2D, fragments: Styled
       if (canFitChars === 0) {
         // 当前行是空的，但一个字符都放不下，强制放一个字符
         canFitChars = 1
-        testText = textToProcess[0]
+        accumulatedWidth = ctx.measureText(textToProcess[0]).width
       }
 
       // 添加能放下的文本到当前行
-      if (testText) {
-        addToLine({ text: testText, style: fragment.style })
+      const textToAdd = textToProcess.substring(0, canFitChars)
+      if (textToAdd) {
+        currentLine.push({ text: textToAdd, style: fragment.style })
+        currentLineWidth += accumulatedWidth
+        const { fontSize = 14, lineHeight } = fragment.style
+        maxLineHeight = Math.max(maxLineHeight, lineHeight || fontSize * 1.4)
       }
 
       // 更新剩余文本

@@ -1,23 +1,51 @@
 import { Element, Style } from '@karin-mys/prender/types'
+import crypto from 'crypto'
 import { loadImage, type Image } from 'skia-canvas'
 
 // 图片源类型，支持 string 和 Buffer
 type ImageSource = string | Buffer
 
-// 图片缓存管理
+interface CacheEntry {
+  image: Image
+  lastUsed: number
+  size: number // 图片大小（宽 * 高）
+}
+
+// 图片缓存管理 - 使用 LRU 策略
 export class ImageCache {
-  private cache: Map<string, Image> = new Map();
-  private count: Map<string, number> = new Map();
+  private cache: Map<string, CacheEntry> = new Map()
+  private maxCacheSize: number = 100 * 1024 * 1024 // 100MB (估算)
+  private currentCacheSize: number = 0
+  private maxEntries: number = 100 // 最多缓存100张图片
 
   // 为图片源生成缓存键
   private generateCacheKey (src: ImageSource): string {
     if (typeof src === 'string') {
       return src
     } else if (Buffer.isBuffer(src)) {
-      // 使用 Buffer 的哈希值作为键
-      return `buffer:${src.toString('base64').slice(0, 32)}`
+      // 使用 MD5 哈希提高性能
+      return `buffer:${crypto.createHash('md5').update(src).digest('hex')}`
     }
     return 'unknown'
+  }
+
+  // LRU 淘汰策略
+  private evictLRU (): void {
+    let oldestKey: string | null = null
+    let oldestTime = Date.now()
+
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.lastUsed < oldestTime) {
+        oldestTime = entry.lastUsed
+        oldestKey = key
+      }
+    }
+
+    if (oldestKey) {
+      const entry = this.cache.get(oldestKey)!
+      this.currentCacheSize -= entry.size
+      this.cache.delete(oldestKey)
+    }
   }
 
   // 收集元素树中所有的图片源
@@ -55,43 +83,61 @@ export class ImageCache {
 
     if (uniqueSources.length === 0) return
 
-    console.log(`预加载 ${uniqueSources.length} 张图片...`)
-
     // 并行加载所有图片
     const loadPromises = sources.map(async (src) => {
       try {
         const cacheKey = this.generateCacheKey(src)
         if (!this.cache.has(cacheKey)) {
           const image = await loadImage(src)
-          this.cache.set(cacheKey, image)
+          const imageSize = image.width * image.height * 4 // 估算 RGBA 大小
+
+          // 确保有足够空间
+          while (
+            (this.currentCacheSize + imageSize > this.maxCacheSize ||
+              this.cache.size >= this.maxEntries) &&
+            this.cache.size > 0
+          ) {
+            this.evictLRU()
+          }
+
+          this.cache.set(cacheKey, {
+            image,
+            lastUsed: Date.now(),
+            size: imageSize
+          })
+          this.currentCacheSize += imageSize
+        } else {
+          // 更新最后使用时间
+          const entry = this.cache.get(cacheKey)!
+          entry.lastUsed = Date.now()
         }
-        this.count.set(cacheKey, (this.count.get(cacheKey) || 0) + 1)
       } catch (error) {
         console.error(`加载图片失败:`, src, error)
       }
     })
 
     await Promise.all(loadPromises)
-    console.log(`图片预加载完成`)
   }
 
   // 获取缓存的图片
   getImage (src: ImageSource): Image | undefined {
     const cacheKey = this.generateCacheKey(src)
-    const image = this.cache.get(cacheKey)
+    const entry = this.cache.get(cacheKey)
 
-    if (image) {
-      // 减少引用计数
-      this.count.set(cacheKey, (this.count.get(cacheKey) || 0) - 1)
+    if (entry) {
+      // 更新最后使用时间
+      entry.lastUsed = Date.now()
 
-      // 如果引用计数为0，删除缓存
-      if (this.count.get(cacheKey) === 0) {
-        this.cache.delete(cacheKey)
-        this.count.delete(cacheKey)
-      }
+      return entry.image
     }
 
-    return image
+    return undefined
+  }
+
+  // 清空缓存
+  clear (): void {
+    this.cache.clear()
+    this.currentCacheSize = 0
   }
 }
 

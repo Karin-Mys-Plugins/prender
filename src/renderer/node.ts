@@ -261,10 +261,7 @@ export async function render (
               break
 
             case 'base64':
-              const mimeType = format === 'jpeg' ? 'image/jpeg' :
-                format === 'webp' ? 'image/webp' :
-                  format === 'pdf' ? 'application/pdf' : 'image/png'
-              const base64 = `data:${mimeType};base64,${buffer.toString('base64')}`
+              const base64 = buffer.toString('base64')
               canvasPool.releaseCanvas(finalCanvas)
               resolve(base64)
               break
