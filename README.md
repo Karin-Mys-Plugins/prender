@@ -2,6 +2,7 @@
 
 基于 skia-canvas@3.0.8 的无状态 React 渲染器。
 
+
 ## ✨ 特性
 
 - 🚀 **纯 Node.js 环境**：专为服务端优化，不支持浏览器环境
@@ -17,16 +18,17 @@
 
 ### 安装依赖
 
-需要 Node.js 18+ 和 React 18 版本。
+> [!TIP]
+> skia-canvas 会自动作为依赖安装。在某些系统上，skia-canvas 可能需要编译原生模块。
+
+- 需要 Node.js 18+ 和 React 18 版本。
 
 ```bash
 pnpm add @karin-mys/prender react@18
 pnpm add @types/react@18 --D
 ```
 
->[!TIP]：skia-canvas 会自动作为依赖安装。在某些系统上，skia-canvas 可能需要编译原生模块。
-
-如果你需要绘制 ECharts 图表：
+- 如果你需要绘制 ECharts 图表：
 
 ```bash
 pnpm add echarts
@@ -80,7 +82,7 @@ await renderToFile(<App />, './output.png', 460, null);
 
 ### 渲染方式
 
-Prender 提供多种渲染方式来满足不同的需求：
+- Prender 提供多种渲染方式来满足不同的需求：
 
 #### 渲染到文件
 
@@ -305,39 +307,38 @@ const pdf = await CanvasExporter.toPDF(canvas, {
 
 ### 基础组件
 
-- **View**：容器组件
-- **Text**：文本组件（支持自动换行、省略号）
-- **AdvancedText**：高级文本组件（支持更多文本特性）
-- **Image**：图片组件
-- **Button**：按钮组件
-- **Switch**：开关组件
-- **Checkbox**：复选框组件
-- **BlurView**：模糊效果组件
-- **Painter**：自定义绘制组件
+- **[View](./src/components/base/View.ts)**：容器组件
+- **[Text](./src/components/base/Text.ts)**：文本组件（支持自动换行、省略号）
+- **[AdvancedText](./src/components/base/AdvancedText.ts)**：高级文本组件（支持更多文本特性）
+- **[Image](./src/components/base/Image.ts)**：图片组件
+- **[Button](./src/components/base/Button.ts)**：按钮组件
+- **[Switch](./src/components/base/Switch.ts)**：开关组件
+- **[Checkbox](./src/components/base/Checkbox.ts)**：复选框组件
+- **[BlurView](./src/components/base/BlurView/node.ts)**：模糊效果组件
+- **[Painter](./src/components/base/Painter.ts)**：自定义绘制组件
 
 ### 渐变组件
 
-- **LinearGradient**：线性渐变
-- **RadialGradient**：径向渐变
-- **ConicGradient**：圆锥渐变
+- **[LinearGradient](./src/components/base/LinearGradient.ts)**：线性渐变
+- **[RadialGradient](./src/components/base/RadialGradient.ts)**：径向渐变
+- **[ConicGradient](./src/components/base/ConicGradient.ts)**：圆锥渐变
 
 ### 绘图组件
 
-- **Arc**：弧形
-- **Circle**：圆形
-- **Rect**：矩形
-- **Line**：线条
-- **Path**：路径
-- **Ellipse**：椭圆
-- **DrawingText**：绘图文本
+- **[Arc](./src/components/drawing/Arc.ts)**：弧形
+- **[Circle](./src/components/drawing/Circle.ts)**：圆形
+- **[Rect](./src/components/drawing/Rect.ts)**：矩形
+- **[Line](./src/components/drawing/Line.ts)**：线条
+- **[Path](./src/components/drawing/Path.ts)**：路径
+- **[Ellipse](./src/components/drawing/Ellipse.ts)**：椭圆
+- **[DrawingText](./src/components/drawing/DrawingText.ts)**：绘图文本
 
 ### 图表组件
 
-#### ECharts
+- **[Chart](./src/components/base/Chart/node.ts)**：ECharts 图表组件
 
-如果想要渲染 Echarts，需要先安装 Echarts。
-
-#### ECharts
+> [!TIP]
+> 如果想要渲染 Echarts 图表，需要先安装 echarts 包。
 
 ```tsx
 import React from 'react';
@@ -377,7 +378,7 @@ export const App: React.FC = () => {
 
 ## 输出格式
 
-Prender 支持多种输出格式，充分利用 skia-canvas 的能力：
+- Prender 支持多种输出格式，充分利用 skia-canvas 的能力：
 
 | 格式 | 扩展名 | 用途 | 选项 |
 |------|--------|------|------|
@@ -391,7 +392,7 @@ Prender 支持多种输出格式，充分利用 skia-canvas 的能力：
 
 ### 图片缓存
 
-默认情况下，图片会被缓存以提高性能：
+- 默认情况下，图片会被缓存以提高性能：
 
 ```ts
 import { ImageLoader } from '@karin-mys/prender';
@@ -408,7 +409,7 @@ ImageLoader.clearCache();
 
 ### 字体预加载
 
-在应用启动时注册字体：
+- 在应用启动时注册字体：
 
 ```ts
 import { registerFont } from '@karin-mys/prender';
@@ -420,9 +421,8 @@ registerFont('/fonts/custom-font.ttf');
 
 ### Canvas 池
 
-内部使用 Canvas 池来重用 Canvas 实例，减少创建开销。
+- 内部使用 Canvas 池来重用 Canvas 实例，减少创建开销。
 
----
 
 ## 贡献
 
