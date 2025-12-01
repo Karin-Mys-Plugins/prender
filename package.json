@@ -1,0 +1,49 @@
+{
+  "name": "@karin-mys/prender",
+  "version": "1.0.0",
+  "author": "bietiaop",
+  "description": "基于 skia-canvas 的 Node.js React 渲染器",
+  "keywords": [
+    "react",
+    "skia-canvas",
+    "renderer"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Karin-Mys-Plugins/prender.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "LICENSE",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "pub": "npm publish --access public"
+  },
+  "dependencies": {
+    "react-reconciler": "^0.29.0",
+    "yoga-layout-prebuilt": "^1.10.0",
+    "skia-canvas": "^3.0.8"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.1.9",
+    "@types/react-reconciler": "^0.32.0",
+    "echarts": "^6.0.0",
+    "react": "^18.3.1",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.8.3"
+  }
+}

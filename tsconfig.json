@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "noEmit": false,
+    "isolatedModules": false,
+    "baseUrl": ".",
+    "paths": {
+      "@karin-mys/prender/types": [
+        "./src/types"
+      ],
+      "@karin-mys/prender/components/*": [
+        "./src/components/*"
+      ],
+      "@karin-mys/prender/*": [
+        "./src/*"
+      ]
+    },
+    "jsx": "react",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": false,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "examples.ts"
+  ]
+}

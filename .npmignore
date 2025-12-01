@@ -1,0 +1,11 @@
+.gitignore
+.npmignore
+.DS_Store
+*.zip
+npm-debug.log
+node_modules
+TODO.md
+*.tgz
+.eslintrc
+cloudformation
+src
