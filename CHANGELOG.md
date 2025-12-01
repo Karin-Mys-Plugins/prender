@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/Karin-Mys-Plugins/prender/compare/v1.0.2...v1.0.3) (2025-12-01)
+
+
+### Bug Fixes
+
+* registerFont ([0252448](https://github.com/Karin-Mys-Plugins/prender/commit/0252448c64a00c7076e349677e36092d144fabbf))
+
 ## [1.0.2](https://github.com/Karin-Mys-Plugins/prender/compare/v1.0.1...v1.0.2) (2025-12-01)
 
 
