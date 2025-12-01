@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/Karin-Mys-Plugins/prender/compare/v1.0.1...v1.0.2) (2025-12-01)
+
+
+### Bug Fixes
+
+* this 上下文丢失 ([fefda48](https://github.com/Karin-Mys-Plugins/prender/commit/fefda48698af09eeb2538be90a585c777eeaafd4))
+
 ## [1.0.1](https://github.com/Karin-Mys-Plugins/prender/compare/v1.0.0...v1.0.1) (2025-12-01)
 
 
