@@ -31,8 +31,17 @@ export class FontManager {
 
     for (const path of paths) {
       if (!this.registeredFonts.has(path)) {
-        FontLibrary.use(path)
-        this.registeredFonts.add(path)
+        try {
+          // 确保路径不为空
+          if (!path || typeof path !== 'string') {
+            console.warn(`[FontManager] Invalid font path: ${path}`)
+            continue
+          }
+          FontLibrary.use(path)
+          this.registeredFonts.add(path)
+        } catch (error) {
+          console.error(`[FontManager] Failed to register font: ${path}`, error)
+        }
       }
     }
   }

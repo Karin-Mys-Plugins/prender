@@ -10,7 +10,11 @@ import * as echarts from 'echarts'
 import React from 'react'
 import { FontLibrary } from 'skia-canvas'
 
-export const registerFont = FontLibrary.use
+// 使用包装函数以保留正确的 this 上下文
+export const registerFont = (pathOrPaths: string | string[]) => {
+  const paths = Array.isArray(pathOrPaths) ? pathOrPaths : [pathOrPaths]
+  paths.forEach(path => FontLibrary.use(path))
+}
 
 // 导出 skia-canvas 字体管理功能
 export { FontManager, ImageLoader } from '@karin-mys/prender/utils/skia'
