@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Karin-Mys-Plugins/prender/compare/v1.0.0...v1.0.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* 缓存优化 ([275aa2b](https://github.com/Karin-Mys-Plugins/prender/commit/275aa2b54d8b7944b2c6e0e30b7fe5a98131f717))
+
 ## 1.0.0 (2025-12-01)
 
 
